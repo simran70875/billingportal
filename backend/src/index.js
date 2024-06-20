@@ -3,7 +3,7 @@ const app = express();
 const session = require("express-session");
 const morgan = require("morgan");
 const favicon = require('serve-favicon');
-const path = require('path'); // Make sure to import the 'path' module
+const path = require('path');
 const cors = require("cors");
 
 // Load environment variables from .env file
@@ -14,7 +14,7 @@ const port = process.env.PORT;
 const router = require("./routes/routers");
 
 // Serve the favicon
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, '../public', 'favicon.ico')));
 
 // Enable CORS
 app.use(cors());
@@ -29,8 +29,8 @@ app.use(
 );
 
 // Serve static files from 'public' and 'assets' directories
-app.use(express.static("public"));
-app.use(express.static('assets'));
+app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../assets')));
 
 // Set view engine to EJS
 app.set("view-engine", "ejs");
