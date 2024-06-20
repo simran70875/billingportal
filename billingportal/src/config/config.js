@@ -1,0 +1,32 @@
+const BASE_URL = "http://localhost:8000/";
+
+const path = {
+  image_url: BASE_URL + "images/",
+  login: BASE_URL + "login",
+  getItems: BASE_URL + "showProducts",
+  getOperators: BASE_URL + "showOperators",
+  updateStatus: BASE_URL + "updateStatus",
+  deleteOperator: BASE_URL + "deleteOperator",
+  editOperator: BASE_URL + "editOperator",
+  createOperator: BASE_URL + "createOperator",
+  deleteItem: BASE_URL + "deleteProduct",
+  duplicateItem: BASE_URL + "duplicateProduct",
+  editItem: BASE_URL + "updateProduct",
+  addItem: BASE_URL + "addProduct",
+  updateStock: BASE_URL + "updateStock",
+  updatePriceDiscount: BASE_URL + "updatePriceDiscount",
+  getClients: BASE_URL + "getCleints",
+  getBills: BASE_URL + "showBills",
+  createBill: BASE_URL + "createNewBill",
+  addSettings: BASE_URL + "settings",
+  showSettings: BASE_URL + "showSettings",
+  billDetails: BASE_URL + "billDetails",
+  updateBillStatus: BASE_URL + "updateBillStatus",
+  getTodayItems: BASE_URL + "todayProducts",
+  getSaleItems: BASE_URL + "productSales",
+  logout: BASE_URL + "logout",
+  addProductsFile: BASE_URL + "addProductsFile",
+  getTotalRevenue: BASE_URL + "getTotalRevenue",
+  getMonthTotalRevenue: BASE_URL + "getMonthTotalRevenue",
+};
+export default path;
