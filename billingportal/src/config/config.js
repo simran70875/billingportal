@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8000/";
+const BASE_URL = "https://billing-portal-backend.vercel.app/";
 
 const path = {
   image_url: BASE_URL + "images/",
