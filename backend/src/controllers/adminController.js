@@ -53,7 +53,9 @@ class AdminController {
     const { userid, password } = req.body;
     try {
       //REVIEW - check user admin or operator exits
-      const adminOrOperator = (await admin.findOne({ userid })) || (await operatorSchema.findOne({ userid }));
+      const adminOrOperator =
+        (await admin.findOne({ userid })) ||
+        (await operatorSchema.findOne({ userid }));
       console.log(adminOrOperator);
       if (!adminOrOperator) {
         return res.json({ success: false, message: "User not found" });

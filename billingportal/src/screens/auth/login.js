@@ -15,8 +15,8 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    userid: "",
-    password: "",
+    userid: "SuperAdmin",
+    password: "Admin_demo",
   });
 
   const [errors, setErrors] = useState({
