@@ -7,6 +7,23 @@ const { Canvas } = require("canvas");
 const jsBarcode = require("jsbarcode");
 const fs = require("fs");
 const path = require("path");
+const { v4: uuidv4 } = require('uuid');
+
+
+function generateProductId() {
+  const prefix = 'PR-';  // Set the prefix
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';  // Alphanumeric characters pool
+  let randomPart = '';
+
+  // Generate 4 random characters from the character pool
+  for (let i = 0; i < 4; i++) {
+      randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  // Combine prefix with the random part
+  const productId = `${prefix}${randomPart}`;
+  return productId;
+}
 
 // Generate barcode and save to images folder
 const imagesDir = path.resolve(__dirname, "../../assets/images");
@@ -21,45 +38,28 @@ class productController {
   static get_products = async (req, res) => {
     try {
       const userId = req.user.userId;
-      const adminOrOperator =
-        (await adminSchema.findById(userId)) ||
-        (await operatorSchema.findById(userId));
+      const adminOrOperator = (await adminSchema.findById(userId)) || (await operatorSchema.findById(userId));
       console.log(adminOrOperator.role, userId);
 
       let items;
-      if (
-        adminOrOperator &&
-        (adminOrOperator.role === "admin" ||
-          adminOrOperator.role === "superAdmin")
-      ) {
-        items = await Product.find();
+      if (adminOrOperator && (adminOrOperator.role === "admin" || adminOrOperator.role === "superAdmin")) {
+        items = await Product.find().sort({dateCreated:-1});
       } else if (adminOrOperator && adminOrOperator.role === "operator") {
-        items = await Product.find({ operator: userId });
+        items = await Product.find({ operator: userId }).sort({dateCreated:-1});;
       } else {
-        return res.json({
-          success: false,
-          message: "User not authorized to view products",
-        });
+        return res.json({success: false, message: "User not authorized to view products"});
       }
-      return res.json({
-        success: true,
-        data: items,
-        message: "",
-      });
+      return res.json({success: true, data: items, message: ""});
     } catch (error) {
       console.error("Error while showing product:", error);
-      return res
-        .status(500)
-        .send({ success: false, message: "Internal server error" });
+      return res.status(500).send({ success: false, message: "Internal server error" });
     }
   };
 
   static get_today_products = async (req, res) => {
     try {
       const userId = req.user.userId;
-      const adminOrOperator =
-        (await adminSchema.findById(userId)) ||
-        (await operatorSchema.findById(userId));
+      const adminOrOperator = (await adminSchema.findById(userId)) || (await operatorSchema.findById(userId));
 
       if (!adminOrOperator) {
         return res.json({
@@ -207,9 +207,7 @@ class productController {
   //NOTE - ========================== add products by file operator =================================
   static product_file_post = async (req, res) => {
     const userID = req.user.userId;
-    const user =
-      (await operatorSchema.findById(userID)) ||
-      (await adminSchema.findById(userID));
+    const user =  (await operatorSchema.findById(userID)) || (await adminSchema.findById(userID));
     try {
       const filePath = req.file.path;
       const workbook = XLSX.readFile(filePath);
@@ -220,11 +218,13 @@ class productController {
       // Save each item from the parsed data to the Product model
       for (const item of data) {
         const canvas = new Canvas();
-        const value = `${item.productId ? `Item-Id:${item.productId}` : ""}\n${
-          item.productName ? `Item-Name:${item.productName}` : ""
-        }\n${item.price ? `Unit Price:${item.price}` : ""}\n${
-          item.discount ? `Discount:${item.discount}%,` : ""
-        }\n${item.stockAmount ? `Stock:${item.stockAmount}` : ""}`;
+        const productId = generateProductId();
+        const value = `
+        ${productId ? `Item-Id:${productId}` : ""}\n
+        ${item.productName ? `Item-Name:${item.productName}` : ""}\n
+        ${item.price ? `Unit Price:${item.price}` : ""}\n
+        ${item.discount ? `Discount:${item.discount}%,` : ""}\n
+        ${item.stockAmount ? `Stock:${item.stockAmount}` : ""}`;
         jsBarcode(canvas, value, {
           lineColor: "black",
           width: 1,
@@ -232,7 +232,7 @@ class productController {
         });
         const barImg = canvas.toDataURL("image/png");
         const base64Data = barImg.replace(/^data:image\/png;base64,/, "");
-        const imageName = `${item.productName}_${item.productId}.png`;
+        const imageName = `${item.productName}_${productId}.png`;
         const imagePath = path.join(imagesDir, imageName);
         fs.writeFileSync(imagePath, base64Data, "base64", (err) => {
           if (err) {
@@ -258,7 +258,7 @@ class productController {
         let productData;
         if (user && (user.role === "admin" || user.role === "superAdmin")) {
           productData = {
-            productId: item.productId,
+            productId: productId,
             admin: userID,
             productName: item.productName,
             variationName: item.variationName,
@@ -270,7 +270,7 @@ class productController {
           };
         } else {
           productData = {
-            productId: item.productId,
+            productId: productId,
             operator: userID,
             productName: item.productName,
             variationName: item.variationName,
@@ -304,7 +304,6 @@ class productController {
   static product_post = async (req, res) => {
     const userID = req.user.userId;
     const {
-      productId,
       productName,
       variationName,
       shortDescription,
@@ -312,7 +311,8 @@ class productController {
       discount,
       stockAmount,
     } = req.body;
-
+    
+    const productId = generateProductId();
     try {
       const user =
         (await operatorSchema.findById(userID)) ||
@@ -331,6 +331,7 @@ class productController {
       }\n${price ? `Unit Price:${price}` : ""}\n${
         discount ? `Discount:${discount}%,` : ""
       }\n${stockAmount ? `Stock:${stockAmount}` : ""}`;
+
       jsBarcode(canvas, value, {
         lineColor: "black",
         width: 1,
@@ -401,8 +402,10 @@ class productController {
 
   //NOTE -   ========================== copy product by operator =================================
   static copy_product = async (req, res) => {
-    const { productId, newProductId } = req.body;
+    const { productId } = req.body;
+    const newProductId = generateProductId();
     try {
+
       //NOTE -Check if a product with the new productId already exists
       const existingProduct = await Product.findOne({
         productId: newProductId,

@@ -28,7 +28,7 @@ router.get("/showProducts", verifyToken, productController.get_products);
 router.get("/todayProducts", verifyToken, productController.get_today_products);
 router.get("/productSales", verifyToken, productController.get_all_sales);
 router.post("/addProduct", verifyToken, isValid.add_product, productController.product_post);
-router.post("/addProductsFile",verifyToken, upload.single('file'),productController.product_file_post);
+router.post("/addProductsFile",verifyToken, upload.single('file'), productController.product_file_post);
 
 router.delete("/deleteProduct/:id", productController.delete_product);
 router.put("/updateProduct/:id", productController.update_product);

@@ -22,12 +22,12 @@ const Actions = ({ value, reload }) => {
     const image = await fetch(url);
     const imageBlog = await image.blob();
     const imageURL = URL.createObjectURL(imageBlog);
-
     const downloadLink = document.createElement("a");
     downloadLink.href = imageURL;
     downloadLink.download = name;
     downloadLink.click();
   };
+  
   const [formData, setFormData] = useState({
     productId: value.productId,
     productName: value.productName,

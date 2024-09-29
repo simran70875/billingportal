@@ -1,4 +1,4 @@
-import React, {  useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
@@ -20,6 +20,7 @@ import FetchItems from "../../../hooks/fetchItems";
 import { FaBarcode, FaFile, FaFileUpload } from "react-icons/fa";
 import { useReactToPrint } from "react-to-print";
 import { deleteWithoutToken } from "../../../services/delete";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function Items() {
   const componentRef = useRef();
@@ -27,8 +28,8 @@ export default function Items() {
   const token = useSelector((state) => state.auth.token);
   const [showAddItem, setShowAddItem] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
-
-  const [productId, setproductId] = useState("");
+  const [loading, isLoading] = useState(false);
+  // const [productId, setproductId] = useState("");
   const [productName, setproductName] = useState("");
   const [shortDescription, setshortDescription] = useState("");
   const [price, setprice] = useState(0);
@@ -38,9 +39,9 @@ export default function Items() {
     content: () => componentRef.current,
   });
   const columnDefs = [
-    { field: "productId", flex: 1, checkboxSelection: true },
-    { field: "dateCreated", flex: 1 },
-    { field: "dateUpdated", flex: 1 },
+    { field: "productId", flex: 1.5, checkboxSelection: true },
+    { field: "dateCreated", flex: 1.5 },
+    { field: "dateUpdated", flex: 1.5 },
     {
       field: "productName",
       flex: 2.5,
@@ -129,7 +130,6 @@ export default function Items() {
 
   const addItem = async () => {
     const formData = {
-      productId: productId,
       productName: productName,
       shortDescription: shortDescription,
       price: price,
@@ -153,41 +153,6 @@ export default function Items() {
     } catch (error) {
       console.error("Error adding item:", error);
     }
-
-    // html2canvas(elem, opt).then(async (canvas) => {
-    //   const barImg = canvas.toDataURL("image/png");
-    //   const blob = await fetch(barImg).then((res) => res.blob());
-    //   const barcodeName = `${productName}${productId}_${Date.now()}.png`;
-    //   const formData = new FormData();
-    //   formData.append("productId", productId);
-    //   formData.append("productName", productName);
-    //   formData.append("shortDescription", shortDescription);
-    //   formData.append("price", price);
-    //   formData.append("discount", discount);
-    //   formData.append("stockAmount", stockAmount);
-    //   formData.append("file", blob, barcodeName);
-
-    //   // Log formData contents
-    //   for (let pair of formData.entries()) {
-    //     console.log(pair[0] + ": " + pair[1]);
-    //   }
-
-    //   const url = path.addItem;
-    //   try {
-    //     await postWithToken(url, token, formData).then((response) => {
-    //       console.log("response ==>", response);
-    //       if (response.success === true) {
-    //         toast.success(response.message);
-    //         setShowAddItem(false);
-    //         Items();
-    //       } else {
-    //         toast.error(response.message);
-    //       }
-    //     });
-    //   } catch (error) {
-    //     console.error("Error adding item:", error);
-    //   }
-    // });
   };
 
   const deleteSeletedItem = async (id) => {
@@ -290,11 +255,14 @@ export default function Items() {
     formData.append("file", file);
     const url = path.addProductsFile;
     try {
+      isLoading(true);
       await postWithToken(url, token, formData).then((res) => {
         if (res.success) {
+          isLoading(false);
           toast.success(res.message);
           Items();
         } else {
+          isLoading(false);
           toast.error(res.message);
         }
       });
@@ -302,6 +270,13 @@ export default function Items() {
       console.error("Error uploading file:", error);
     }
   };
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -518,7 +493,7 @@ export default function Items() {
         </Modal.Header>
         <div className="px-4 py-3">
           <Form className="row">
-            <div className="mb-3 col-3">
+            {/* <div className="mb-3 col-3">
               <Form.Label>Product Id</Form.Label>
               <Form.Control
                 onChange={(e) => setproductId(e.target.value)}
@@ -526,7 +501,7 @@ export default function Items() {
                 name="productId"
                 value={productId}
               />
-            </div>
+            </div> */}
             <div className="mb-3 col-3">
               <Form.Label>Product Name</Form.Label>
               <Form.Control

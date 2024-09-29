@@ -33,7 +33,7 @@ exports.create_operator = [
 ];
 
 exports.add_product = [
-  check("productId").trim().not().isEmpty().withMessage("product id is required"),
+  // check("productId").trim().not().isEmpty().withMessage("product id is required"),
   check("productName").trim().not().isEmpty().withMessage("product name is required"),
   check("price").trim().not().isEmpty().withMessage("price is required"),
   check("stockAmount").trim().not().isEmpty().withMessage("stock amount is required"),
