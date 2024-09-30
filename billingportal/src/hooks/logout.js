@@ -10,6 +10,7 @@ const Logout = () => {
   const handleLogout = () => {
     dispatch(logout());
     const response = postsWithoutTokenAndData(path.logout);
+    console.log("logout response", response)
     try {
       if (response) {
         navigate("/login");

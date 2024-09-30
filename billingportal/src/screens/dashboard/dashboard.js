@@ -56,6 +56,7 @@ export default function Dashboard() {
   const [filteredItemsData, setFilteredItemsData] = useState([]);
   const [showItemsFilteredData, setShowItemsFilteredData] = useState(false);
   const [productId, setProductId] = useState();
+  const [productName, setProductName] = useState();
   const [stockAmount, setStockAmount] = useState(0);
   const [MongoItemId, setMongoItemId] = useState("");
   const [itemStockAmount, setitemStockAmount] = useState(0);
@@ -71,13 +72,7 @@ export default function Dashboard() {
       [name]: value,
     }));
     setShowPhoneFilteredData(true);
-    // if(name == "clientPhone"){
-    //   setFormData({
-    //     clientName: "",
-    //     address: "",
-    //     email: "",
-    //   });
-    // }
+    
     if (clientData) {
       const filteredClients = clientData.filter((client) =>
         client.clientPhone.includes(value)
@@ -96,6 +91,18 @@ export default function Dashboard() {
       setFilteredItemsData(filteredItems);
     }
   };
+
+  const handleFilterItemNameChange = (e) => {
+    setProductName(e.target.value);
+    setShowItemsFilteredData(true);
+    if (itemsData) {
+      const filteredItems = itemsData.filter((item) =>
+        item.productName.includes(e.target.value)
+      );
+      setFilteredItemsData(filteredItems);
+    }
+  };
+
   //REVIEW - add new item to bill
   const addItem = () => {
     const selectedItem = itemsData.find((item) => item.productId === productId);
@@ -495,6 +502,34 @@ export default function Dashboard() {
                     <Link
                       onClick={() => {
                         setProductId(item.productId);
+                        setMongoItemId(item._id);
+                        setitemStockAmount(item.stockAmount);
+                        setInitialItemStockAmount(item.stockAmount);
+                        setShowItemsFilteredData(false);
+                      }}
+                      key={item._id}
+                    >
+                      <p>{item.productId} {item.productName}</p>
+                      {/* Render the product ID or another specific property */}
+                    </Link>
+                  ))}
+              </div>
+            </div>
+            <div className="mb-3 col-6">
+              <Form.Label>Product Name</Form.Label>
+              <Form.Control
+                onChange={handleFilterItemNameChange}
+                type="text"
+                name="productName"
+                value={productName}
+              />
+              <div className="autocomplete">
+                {showItemsFilteredData &&
+                  filteredItemsData.map((item) => (
+                    <Link
+                      onClick={() => {
+                        setProductId(item.productId);
+                        setProductName(item.productName);
                         setMongoItemId(item._id);
                         setitemStockAmount(item.stockAmount);
                         setInitialItemStockAmount(item.stockAmount);

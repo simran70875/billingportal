@@ -40,12 +40,13 @@ const Login = () => {
     const url = path.login;
     console.log("i am in handle login", url);
     const response = await postsWithoutToken(url, formData);
+    console.log(response);
 
     try {
       if (response.success) {
         console.log("response true ====>", response);
         const { _id, role, userid } = response.data.adminOrOperator;
-        const { token } = response.data;
+        const token  = response.data.token;
         console.log("token =>", token);
         dispatch(loginSuccess(_id, token, role, userid));
         navigate("/");
