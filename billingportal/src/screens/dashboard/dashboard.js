@@ -26,6 +26,7 @@ export default function Dashboard() {
   const taxValue = userSettings && userSettings.tax;
   const { clientData } = FetchClients();
   const { itemsData } = FetchItems();
+  console.log("items data ==> ", itemsData);
 
   const [formData, setFormData] = useState({
     billNumber: `BID-${uuidv4().substring(0, 8)}`,
@@ -82,31 +83,32 @@ export default function Dashboard() {
   };
   //REVIEW - handle filter product based on product id
   const handleFilterItemIdChange = (e) => {
-    setProductId(e.target.value);
-    setShowItemsFilteredData(true);
-    if (itemsData) {
-      const filteredItems = itemsData.filter((item) =>
-        item.productId.includes(e.target.value)
-      );
-      setFilteredItemsData(filteredItems);
-    }
-  };
-
-  const handleFilterItemNameChange = (e) => {
     setProductName(e.target.value);
     setShowItemsFilteredData(true);
     if (itemsData) {
       const filteredItems = itemsData.filter((item) =>
-        item.productName.includes(e.target.value)
+        item.productName.toLowerCase().includes(e.target.value)
       );
       setFilteredItemsData(filteredItems);
     }
   };
 
+
   //REVIEW - add new item to bill
   const addItem = () => {
+
+
+    if(stockAmount <= 0){
+      toast.error(
+        `Enter Item Quantity under ${itemStockAmount}`
+      );
+      return;
+    }
     const selectedItem = itemsData.find((item) => item.productId === productId);
     console.log(selectedItem);
+    
+
+
     if (!selectedItem) {
       console.error("Product not found!");
       return;
@@ -488,37 +490,11 @@ export default function Dashboard() {
         </Modal.Header>
         <div className="px-4 py-3">
           <Form className="row">
-            <div className="mb-3 col-6">
-              <Form.Label>Product Id</Form.Label>
-              <Form.Control
-                onChange={handleFilterItemIdChange}
-                type="text"
-                name="productId"
-                value={productId}
-              />
-              <div className="autocomplete">
-                {showItemsFilteredData &&
-                  filteredItemsData.map((item) => (
-                    <Link
-                      onClick={() => {
-                        setProductId(item.productId);
-                        setMongoItemId(item._id);
-                        setitemStockAmount(item.stockAmount);
-                        setInitialItemStockAmount(item.stockAmount);
-                        setShowItemsFilteredData(false);
-                      }}
-                      key={item._id}
-                    >
-                      <p>{item.productId} {item.productName}</p>
-                      {/* Render the product ID or another specific property */}
-                    </Link>
-                  ))}
-              </div>
-            </div>
+          
             <div className="mb-3 col-6">
               <Form.Label>Product Name</Form.Label>
               <Form.Control
-                onChange={handleFilterItemNameChange}
+                onChange={handleFilterItemIdChange}
                 type="text"
                 name="productName"
                 value={productName}
@@ -542,6 +518,16 @@ export default function Dashboard() {
                     </Link>
                   ))}
               </div>
+            </div>
+            <div className="mb-3 col-6">
+              <Form.Label>Product Id</Form.Label>
+              <Form.Control
+                type="text"
+                name="productId"
+                value={productId}
+                readOnly
+              />
+              
             </div>
             <div className="mb-3 col-6">
               <Form.Label>Quantity</Form.Label>

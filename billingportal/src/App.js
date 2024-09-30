@@ -23,6 +23,8 @@ import DecodeJWT from "./hooks/decodeJWT";
 export default function App() {
   const dispatch = useDispatch();
   const decodeJWT = DecodeJWT();
+
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     const id = localStorage.getItem("id");
@@ -32,7 +34,7 @@ export default function App() {
       dispatch(loginSuccess(id, token, role, userid));
     }
     decodeJWT(token);
-  }, [dispatch, decodeJWT]);
+  }, []);
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const role = useSelector((state) => state.auth.role);
